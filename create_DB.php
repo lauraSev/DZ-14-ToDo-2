@@ -12,6 +12,7 @@ echo mysqli_error($mysqli).'11,<br>';
 $res = mysqli_query($mysqli, "SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO'");
 echo mysqli_error($mysqli).'13<br>';
 $res = mysqli_query($mysqli, "DROP TABLE IF EXISTS tasks");
+$res = mysqli_query($mysqli, "DROP TABLE IF EXISTS users");
 echo mysqli_error($mysqli).'15<br>';
 $res = mysqli_query($mysqli, "CREATE TABLE `tasks` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

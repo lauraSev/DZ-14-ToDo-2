@@ -82,10 +82,10 @@ $res = $dbh->query("SELECT
 					tasks.is_done,
 					tasks.id,
 					users.name
-					FROM tasks,users
+					FROM tasks INNER JOIN users ON tasks.user_id=users.id
 					WHERE
-					tasks.user_id = users.id
-					AND tasks.user_id=".$oLogin->getUserId()
+					tasks.user_id=".$oLogin->getUserId()."
+					AND tasks.created_by <>" .$oLogin->getUserId()
 					);
 //print_r($dbh->errorInfo());
 $allusers = "";
@@ -136,10 +136,9 @@ $res = $dbh->query("SELECT
 					tasks.is_done,
 					tasks.id,
 					users.name
-					FROM tasks,users
+					FROM tasks INNER JOIN users ON tasks.user_id=users.id
 					WHERE
-					tasks.user_id = users.id
-					AND tasks.created_by=".$oLogin->getUserId()
+					tasks.created_by=".$oLogin->getUserId()
 					);
 //print_r($dbh->errorInfo());
 $allusers = "";

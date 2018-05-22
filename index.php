@@ -4,11 +4,11 @@
 	
 	if (isset ($_POST['send_reg'])){
 		$result = $oLogin->registratsiya($_POST['login'], $_POST['pas'], $_POST['name'], $_POST['s_name'], $_POST['email']);
-		if ($result){
+		if ($result["result"]){
 			echo 'Вы зарегистрировались. <a href="index.php">Войти</a>';
 			exit();	
 		}
-		else echo 'Произошла ошибка, проверьте правильность введенных данных';	
+		else echo $result["message"];	
 	}
 
 	

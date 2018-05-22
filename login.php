@@ -50,6 +50,12 @@
 			return false;
 		}
 		
+		public function user_exit (){
+			unset($_SESSION['user']);
+				return true;
+			}
+			
+		
 		function getUserId() {
 			return $_SESSION['user'] ['id'];
 		}

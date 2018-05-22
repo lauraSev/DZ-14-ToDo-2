@@ -6,6 +6,14 @@ header ("Location: index.php");
 exit();
 }
 include ('connect.php');
+if (isset ($_GET['btn_exit'])){
+		$result = $oLogin->user_exit();
+		if ($result){
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location: index.php");
+				exit();
+		}
+	}
 ?>
 <!doctype html>
 <html>
@@ -51,10 +59,10 @@ if (isset($_GET['action'])) {
 ?>
 <form action="task.php?action=add" method="post">
     <p><input type="text" name="description"
-              value="<?= isset ($_REQUEST['description']) ? $_REQUEST['description'] : '' ?>"
+              value=""
               placeholder="Описание задачи"><input type="submit" value="Добавить" name="btn"></p>
 </form>
-<p><a href="?filter=owner">Созданные мной задачи</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="?filter=me">Поставленные на меня задачи</a></p>
+<h3>Задачи, которые вам поставили:</h3>
 <table border="1" width="100%">
     <thead>
     <tr>
@@ -68,13 +76,6 @@ if (isset($_GET['action'])) {
     </thead>
     <pre>
 <?php
-$where = '';
-if (isset($_REQUEST['filter']) && $_REQUEST['filter']=='me'){
-	$where = "AND tasks.user_id=".$oLogin->getUserId();
-}
-if(isset($_REQUEST['filter'])&& $_REQUEST['filter']=='owner'){
-	$where = "AND tasks.created_by=".$oLogin->getUserId();
-}
 $res = $dbh->query("SELECT 
 					tasks.description,
 					tasks.date_added,
@@ -84,8 +85,8 @@ $res = $dbh->query("SELECT
 					FROM tasks,users
 					WHERE
 					tasks.user_id = users.id
-					$where
-					");
+					AND tasks.user_id=".$oLogin->getUserId()
+					);
 //print_r($dbh->errorInfo());
 $allusers = "";
 foreach ($oLogin->getAllUsers() as $user){
@@ -115,6 +116,63 @@ foreach ($res as $row) {
 }
 ?>
 </table>
+<h3>Задачи, которые поставили вы:</h3>
+<table border="1" width="100%">
+    <thead>
+    <tr>
+        <th>Описание задачи</th>
+        <th>Дата добавления</th>
+        <th>Статус</th>
+        <th>Исполнитель</th>
+        <th>Назначить</th>
+        <th colspan="2">&nbsp;</th>
+    </tr>
+    </thead>
+    <pre>
+<?php
+$res = $dbh->query("SELECT 
+					tasks.description,
+					tasks.date_added,
+					tasks.is_done,
+					tasks.id,
+					users.name
+					FROM tasks,users
+					WHERE
+					tasks.user_id = users.id
+					AND tasks.created_by=".$oLogin->getUserId()
+					);
+//print_r($dbh->errorInfo());
+$allusers = "";
+foreach ($oLogin->getAllUsers() as $user){
+	$allusers.='<option value="'.$user['id'].'">'.$user['name'].'</option>';	
+}
+foreach ($res as $row) {
+	//echo '<pre>'.print_r($row,true).'</pre>';
+    ?>
+    <tbody>
+      <tr>
+        <td><?= $row['description'] ?></td>
+        <td><?= $row['date_added'] ?></td>
+        <td><?= $row['is_done'] == 0 ? 'Не выполнено' : 'Выполнено' ?></td>
+        <td><?= $row['name'] ?></td>
+        <td>
+        	<select name="worker" onChange="document.location='?action=worker&id=<?=$row['id']?>&worker='+this.value">
+            <option></option>
+            	<?=$allusers?> 
+            </select>
+        </td>
+        <td><a href="task.php?action=done&id=<?= $row['id'] ?>">Завершить</a></td>
+        <td><a href="task.php?action=del&id=<?= $row['id'] ?>">Удалить</a></td>
+      </tr>
+    </tbody>
+
+    <?php
+}
+?>
+</table>
+<form action="task.php?action=user_exit" method="get">
+    <p><input type="submit" value="Выйти" name="btn_exit"></p>
+</form>
 </body>
 </html>
 
